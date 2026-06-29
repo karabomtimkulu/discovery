@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Website Discovery Questionnaire</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F8F8F7;
+    --surface: #FFFFFF;
+    --border: #E4E4E1;
+    --border-strong: #C8C8C4;
+    --text: #1A1A1A;
+    --text-secondary: #6B6B6B;
+    --text-muted: #9E9E9B;
+    --accent: #2D5BE3;
+    --accent-light: #EEF2FF;
+    --accent-mid: #C7D3F8;
+    --success: #1A7A4A;
+    --success-bg: #EDFAF3;
+    --error: #C0392B;
+    --error-bg: #FEF0EF;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── Header ── */
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0 24px;
+    margin-bottom: 40px;
+  }
+  .page-header .inner {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .agency-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .page-header h1 {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+  }
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    max-width: 560px;
+  }
+
+  /* ── Progress ── */
+  .progress-wrap {
+    max-width: 720px;
+    margin: 0 auto 32px;
+    padding: 0 24px;
+  }
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .progress-row strong { color: var(--accent); font-weight: 600; }
+  .progress-track {
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.35s ease;
+    width: 0%;
+  }
+
+  /* ── Main layout ── */
+  .main { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Config banner ── */
+  .config-banner {
+    background: #FFFBEB;
+    border: 1px solid #F0D070;
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #7A5C00;
+    margin-bottom: 28px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .config-banner svg { flex-shrink: 0; margin-top: 1px; }
+  .config-banner a { color: #7A5C00; font-weight: 600; text-decoration: underline; cursor: pointer; }
+
+  /* ── Section ── */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .section-badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 99px;
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+  .section-body { padding: 22px 24px; }
+
+  /* ── Business Overview Toggle ── */
+  .bo-toggle {
+    display: flex;
+    gap: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+  .bo-tab {
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-radius: calc(var(--radius-sm) - 1px);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    border: none;
+    background: none;
+    white-space: nowrap;
+  }
+  .bo-tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px var(--border);
+  }
+
+  /* ── Upload zone ── */
+  .upload-zone {
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.18s;
+    background: var(--bg);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .upload-icon {
+    width: 40px; height: 40px;
+    background: var(--accent-light);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px;
+  }
+  .upload-zone h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .upload-zone p { font-size: 13px; color: var(--text-secondary); }
+  .upload-zone .formats { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+  .file-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--success-bg);
+    border: 1px solid #9FD9BB;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--success);
+  }
+  .file-pill button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 2px;
+  }
+  .file-pill button:hover { color: var(--error); }
+
+  /* ── Form fields ── */
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .field label .q-num {
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-right: 4px;
+  }
+  .field label .req { color: var(--accent); margin-left: 2px; }
+  .field input[type="text"],
+  .field input[type="email"],
+  .field textarea,
+  .field select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--surface);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(45,91,227,0.1);
+  }
+  .field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6B6B' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; cursor: pointer; }
+
+  .hint { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+
+  /* ── Radio / Checkbox groups ── */
+  .radio-group, .check-group { display: flex; flex-direction: column; gap: 8px; }
+  .radio-group.inline, .check-group.inline { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .opt-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+    background: var(--surface);
+  }
+  .opt-label:hover { border-color: var(--accent-mid); background: var(--accent-light); }
+  .opt-label input { accent-color: var(--accent); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+  .opt-label.selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+
+  /* ── Contact fields (top) ── */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width: 520px) { .contact-grid { grid-template-columns: 1fr; } }
+
+  /* ── Submit section ── */
+  .submit-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    margin-top: 8px;
+  }
+  .submit-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .submit-section p { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 13px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .submit-btn:hover { background: #2449C4; }
+  .submit-btn:active { transform: scale(0.99); }
+  .submit-btn:disabled { background: var(--text-muted); cursor: not-allowed; transform: none; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 999;
+    max-width: 420px;
+    text-align: center;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--success); color: #fff; }
+  .toast.error { background: var(--error); color: #fff; }
+
+  /* ── Thank you state ── */
+  .thankyou {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+  }
+  .thankyou .check-circle {
+    width: 64px; height: 64px;
+    background: var(--success-bg);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .thankyou h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  .thankyou p { font-size: 14px; color: var(--text-secondary); max-width: 400px; margin: 0 auto; }
+
+  /* ── Config modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 28px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  }
+  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .modal p { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+  .modal .field { margin-bottom: 14px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-secondary {
+    flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-secondary:hover { background: var(--bg); }
+  .btn-primary {
+    flex: 1; padding: 10px; border: none; border-radius: var(--radius-sm);
+    background: var(--accent); color: #fff; font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-primary:hover { background: #2449C4; }
+
+  /* ── Hidden ── */
+  .hidden { display: none !important; }
+
+  /* ── Icons ── */
+  svg { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Config Modal -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <h3>EmailJS configuration</h3>
+    <p>Enter your EmailJS credentials to enable email sending. These are stored in your browser only.</p>
+    <div class="field">
+      <label>Public key</label>
+      <input type="text" id="cfg-pubkey" placeholder="e.g. aBcDeFgHiJkLmNoP" />
+    </div>
+    <div class="field">
+      <label>Service ID</label>
+      <input type="text" id="cfg-service" placeholder="e.g. service_xxxxxxx" />
+    </div>
+    <div class="field">
+      <label>Template ID</label>
+      <input type="text" id="cfg-template" placeholder="e.g. template_xxxxxxx" />
+    </div>
+    <div class="field">
+      <label>Your email address <span class="req">*</span></label>
+      <input type="email" id="cfg-myemail" placeholder="you@youragency.com" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeConfig()">Cancel</button>
+      <button class="btn-primary" onclick="saveConfig()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="page-header">
+  <div class="inner">
+    <div class="agency-label">Website Discovery</div>
+    <h1>Let's plan your new website</h1>
+    <p>Fill in the form below so we can understand your business and goals. This usually takes 10–15 minutes. Both you and our team will receive a copy of your answers.</p>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-row">
+    <span>Progress</span>
+    <strong id="prog-text">0%</strong>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="prog-fill"></div>
+  </div>
+</div>
+
+<div class="main" id="formArea">
+
+  <!-- Config banner -->
+  <div class="config-banner" id="configBanner">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span>EmailJS credentials not set. <a onclick="openConfig()">Configure now</a> before sending. <a href="https://www.emailjs.com/docs/tutorial/overview/" target="_blank">How to set up EmailJS →</a></span>
+  </div>
+
+  <!-- Contact info -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#EEF2FF;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2D5BE3" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <h2>Your contact details</h2>
+    </div>
+    <div class="section-body">
+      <div class="contact-grid">
+        <div class="field">
+          <label>Full name <span class="req">*</span></label>
+          <input type="text" id="f-name" placeholder="Jane Smith" oninput="updateProgress()" />
+        </div>
+        <div class="field">
+          <label>Company / trading name <span class="req">*</span></label>
+          <input type="text" id="f-company" placeholder="Acme Ltd" oninput="updateProgress()" />
+        </div>
+        <div class="field">
+          <label>Email address <span class="req">*</span></label>
+          <input type="email" id="f-email" placeholder="jane@acme.com" oninput="updateProgress()" />
+        </div>
+        <div class="field">
+          <label>Phone number</label>
+          <input type="text" id="f-phone" placeholder="+27 82 000 0000" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Business Overview -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#F3F0FE;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <h2>Business overview</h2>
+      <span class="section-badge">Section 1</span>
+    </div>
+    <div class="section-body">
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Already have a business profile document? Upload it and we'll use that. Otherwise, answer the questions below.</p>
+
+      <div class="bo-toggle">
+        <button class="bo-tab active" onclick="setBoMode('upload')" id="tab-upload">Upload profile</button>
+        <button class="bo-tab" onclick="setBoMode('manual')" id="tab-manual">Answer manually</button>
+      </div>
+
+      <!-- Upload mode -->
+      <div id="bo-upload">
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="bo-file" accept=".pdf,.doc,.docx,.txt" onchange="handleFile(this)" />
+          <div class="upload-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2D5BE3" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <h3>Upload your business profile</h3>
+          <p>Drag and drop here, or click to browse</p>
+          <p class="formats">PDF, Word, or TXT — max 10MB</p>
+        </div>
+        <div class="file-pill hidden" id="filePill">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span id="fileName">document.pdf</span>
+          <button onclick="removeFile()" title="Remove file">×</button>
+        </div>
+        <p class="hint" style="margin-top:12px;">We'll review your profile before the meeting so no time is wasted on basics.</p>
+      </div>
+
+      <!-- Manual mode -->
+      <div id="bo-manual" class="hidden">
+        <div class="field">
+          <label><span class="q-num">1.</span> Describe your business — what you do, who you serve, and what makes you different <span class="req">*</span></label>
+          <textarea id="bo-1" rows="3" placeholder="e.g. We are a boutique accounting firm serving small businesses in Johannesburg, known for our personal approach and same-day response guarantee." oninput="updateProgress()"></textarea>
+        </div>
+        <div class="field">
+          <label><span class="q-num">2.</span> How long have you been operating, and what stage is the business at?</label>
+          <input type="text" id="bo-2" placeholder="e.g. 6 years, stable and looking to grow online presence" />
+        </div>
+        <div class="field">
+          <label><span class="q-num">3.</span> Who are your main competitors, and what do you think of their websites?</label>
+          <textarea id="bo-3" rows="2" placeholder="e.g. CompanyX has a clean site but lacks detail. CompanyY feels outdated."></textarea>
+        </div>
+        <div class="field">
+          <label><span class="q-num">4.</span> Do you have an existing brand identity?</label>
+          <div class="radio-group inline">
+            <label class="opt-label"><input type="radio" name="bo-brand" value="Yes — full style guide" onchange="optChanged(this)" /> Yes — full style guide</label>
+            <label class="opt-label"><input type="radio" name="bo-brand" value="Yes — logo and colours only" onchange="optChanged(this)" /> Yes — logo and colours only</label>
+            <label class="opt-label"><input type="radio" name="bo-brand" value="No — needs to be created" onchange="optChanged(this)" /> No — needs to be created</label>
+          </div>
+        </div>
+        <div class="field">
+          <label><span class="q-num">5.</span> Are there any websites you admire? What do you like about them?</label>
+          <textarea id="bo-5" rows="2" placeholder="e.g. apple.com — clean, minimal, premium feel. airbnb.com — warm photography and clear CTAs."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Goals & Purpose -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#E1F5EE;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      </div>
+      <h2>Goals & purpose</h2>
+      <span class="section-badge">Section 2</span>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label><span class="q-num">6.</span> What is the primary purpose of this website? <span class="req">*</span></label>
+        <div class="radio-group">
+          <label class="opt-label"><input type="radio" name="g-purpose" value="Generate leads / enquiries" onchange="optChanged(this)" /> Generate leads / enquiries</label>
+          <label class="opt-label"><input type="radio" name="g-purpose" value="Sell products online" onchange="optChanged(this)" /> Sell products online</label>
+          <label class="opt-label"><input type="radio" name="g-purpose" value="Build credibility and trust" onchange="optChanged(this)" /> Build credibility and trust</label>
+          <label class="opt-label"><input type="radio" name="g-purpose" value="Share information / content" onchange="optChanged(this)" /> Share information / content</label>
+          <label class="opt-label"><input type="radio" name="g-purpose" value="Multiple purposes" onchange="optChanged(this)" /> Multiple purposes</label>
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="q-num">7.</span> What does success look like — how will you know the website is working? <span class="req">*</span></label>
+        <textarea id="g-success" rows="2" placeholder="e.g. Receiving 10+ enquiries per month, ranking on Google for our key services, customers saying they found us online." oninput="updateProgress()"></textarea>
+      </div>
+      <div class="field">
+        <label><span class="q-num">8.</span> What is the single most important action you want a visitor to take?</label>
+        <input type="text" id="g-cta" placeholder="e.g. Submit a contact form, call us, book a consultation, add to cart" />
+      </div>
+      <div class="field">
+        <label><span class="q-num">9.</span> Are there any secondary goals or calls-to-action?</label>
+        <textarea id="g-secondary" rows="2" placeholder="e.g. Subscribe to newsletter, follow on social media, download a brochure"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Target Audience -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#FAECE7;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#993C1D" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <h2>Target audience</h2>
+      <span class="section-badge">Section 3</span>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label><span class="q-num">10.</span> Who is your ideal customer or visitor?</label>
+        <textarea id="a-ideal" rows="2" placeholder="e.g. Business owners aged 35–55 in Cape Town, looking for reliable IT support for teams of 10–50 people."></textarea>
+      </div>
+      <div class="field">
+        <label><span class="q-num">11.</span> Do you serve more than one distinct audience?</label>
+        <div class="radio-group inline">
+          <label class="opt-label"><input type="radio" name="a-multi" value="No — one main audience" onchange="optChanged(this)" /> No — one main audience</label>
+          <label class="opt-label"><input type="radio" name="a-multi" value="Yes — two or more segments" onchange="optChanged(this)" /> Yes — two or more segments</label>
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="q-num">12.</span> What device does your typical visitor use?</label>
+        <div class="radio-group inline">
+          <label class="opt-label"><input type="radio" name="a-device" value="Mostly mobile" onchange="optChanged(this)" /> Mostly mobile</label>
+          <label class="opt-label"><input type="radio" name="a-device" value="Mostly desktop" onchange="optChanged(this)" /> Mostly desktop</label>
+          <label class="opt-label"><input type="radio" name="a-device" value="Mix of both" onchange="optChanged(this)" /> Mix of both</label>
+          <label class="opt-label"><input type="radio" name="a-device" value="Not sure" onchange="optChanged(this)" /> Not sure</label>
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="q-num">13.</span> What questions or hesitations does a customer have before buying or enquiring?</label>
+        <textarea id="a-objections" rows="2" placeholder="e.g. How much does it cost? Are you experienced in our industry? Do you offer support after the project?"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scope & Content -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#E6F1FB;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      </div>
+      <h2>Scope & content</h2>
+      <span class="section-badge">Section 4</span>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label><span class="q-num">14.</span> What pages do you think the site needs?</label>
+        <div class="check-group" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <label class="opt-label"><input type="checkbox" name="pages" value="Home" onchange="optChanged(this)" /> Home</label>
+          <label class="opt-label"><input type="checkbox" name="pages" value="About" onchange="optChanged(this)" /> About</label>
+          <label class="opt-label"><input type="checkbox" name="pages" value="Services" onchange="optChanged(this)" /> Services</label>
+          <label class="opt-label"><input type="checkbox" name="pages" value="Portfolio / Work" onchange="optChanged(this)" /> Portfolio / Work</label>
+          <label class="opt-label"><input type="checkbox" name="pages" value="Blog / News" onchange="optChanged(this)" /> Blog / News</label>
+          <label class="opt-label"><input type="checkbox" name="pages" value="Shop / Products" onchange="optChanged(this)" /> Shop / Products</label>
+          <label class="opt-label"><input type="checkbox" name="pages" value="Testimonials" onchange="optChanged(this)" /> Testimonials</label>
+          <label class="opt-label"><input type="checkbox" name="pages" value="Contact" onchange="optChanged(this)" /> Contact</label>
+          <label class="opt-label"><input type="checkbox" name="pages" value="FAQ" onchange="optChanged(this)" /> FAQ</label>
+          <label class="opt-label"><input type="checkbox" name="pages" value="Careers" onchange="optChanged(this)" /> Careers</label>
+        </div>
+        <div class="field" style="margin-top:10px;margin-bottom:0;">
+          <input type="text" id="sc-pages-other" placeholder="Other pages not listed above…" />
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="q-num">15.</span> Do you have existing content (copy, photos, videos)?</label>
+        <div class="radio-group inline">
+          <label class="opt-label"><input type="radio" name="sc-content" value="Yes — most content is ready" onchange="optChanged(this)" /> Yes — most content is ready</label>
+          <label class="opt-label"><input type="radio" name="sc-content" value="Partially — some is ready" onchange="optChanged(this)" /> Partially — some is ready</label>
+          <label class="opt-label"><input type="radio" name="sc-content" value="No — needs to be created" onchange="optChanged(this)" /> No — needs to be created</label>
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="q-num">17.</span> Do you need any special functionality?</label>
+        <div class="check-group" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <label class="opt-label"><input type="checkbox" name="func" value="E-commerce / online store" onchange="optChanged(this)" /> E-commerce / online store</label>
+          <label class="opt-label"><input type="checkbox" name="func" value="Online bookings or scheduling" onchange="optChanged(this)" /> Online bookings / scheduling</label>
+          <label class="opt-label"><input type="checkbox" name="func" value="Client portal or login area" onchange="optChanged(this)" /> Client portal / login area</label>
+          <label class="opt-label"><input type="checkbox" name="func" value="Live chat" onchange="optChanged(this)" /> Live chat</label>
+          <label class="opt-label"><input type="checkbox" name="func" value="Custom contact forms" onchange="optChanged(this)" /> Custom contact forms</label>
+          <label class="opt-label"><input type="checkbox" name="func" value="Newsletter / email capture" onchange="optChanged(this)" /> Newsletter / email capture</label>
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="q-num">18.</span> Any third-party tools that need to integrate?</label>
+        <input type="text" id="sc-integrations" placeholder="e.g. Salesforce CRM, Stripe payments, Calendly, Mailchimp" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#FAEEDA;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      </div>
+      <h2>Technical & platform</h2>
+      <span class="section-badge">Section 5</span>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label><span class="q-num">19.</span> Do you have a platform preference?</label>
+        <div class="radio-group inline">
+          <label class="opt-label"><input type="radio" name="t-platform" value="WordPress" onchange="optChanged(this)" /> WordPress</label>
+          <label class="opt-label"><input type="radio" name="t-platform" value="Webflow" onchange="optChanged(this)" /> Webflow</label>
+          <label class="opt-label"><input type="radio" name="t-platform" value="Shopify" onchange="optChanged(this)" /> Shopify</label>
+          <label class="opt-label"><input type="radio" name="t-platform" value="Custom build" onchange="optChanged(this)" /> Custom build</label>
+          <label class="opt-label"><input type="radio" name="t-platform" value="No preference" onchange="optChanged(this)" /> No preference</label>
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="q-num">20.</span> Do you own a domain and hosting?</label>
+        <div class="radio-group inline">
+          <label class="opt-label"><input type="radio" name="t-domain" value="Yes — both" onchange="optChanged(this)" /> Yes — both</label>
+          <label class="opt-label"><input type="radio" name="t-domain" value="Domain only" onchange="optChanged(this)" /> Domain only</label>
+          <label class="opt-label"><input type="radio" name="t-domain" value="No — both needed" onchange="optChanged(this)" /> No — both needed</label>
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="q-num">21.</span> Who will manage the website after launch?</label>
+        <div class="radio-group inline">
+          <label class="opt-label"><input type="radio" name="t-manage" value="We will manage it ourselves" onchange="optChanged(this)" /> We'll manage it ourselves</label>
+          <label class="opt-label"><input type="radio" name="t-manage" value="Your team on a retainer" onchange="optChanged(this)" /> Your team on a retainer</label>
+          <label class="opt-label"><input type="radio" name="t-manage" value="Not decided yet" onchange="optChanged(this)" /> Not decided yet</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marketing & SEO -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#FBEAF0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#993556" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <h2>Marketing & SEO</h2>
+      <span class="section-badge">Section 6</span>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label><span class="q-num">23.</span> How do customers currently find you?</label>
+        <div class="check-group inline">
+          <label class="opt-label"><input type="checkbox" name="mkt-find" value="Word of mouth" onchange="optChanged(this)" /> Word of mouth</label>
+          <label class="opt-label"><input type="checkbox" name="mkt-find" value="Google search" onchange="optChanged(this)" /> Google search</label>
+          <label class="opt-label"><input type="checkbox" name="mkt-find" value="Social media" onchange="optChanged(this)" /> Social media</label>
+          <label class="opt-label"><input type="checkbox" name="mkt-find" value="Paid ads" onchange="optChanged(this)" /> Paid ads</label>
+          <label class="opt-label"><input type="checkbox" name="mkt-find" value="Directory listings" onchange="optChanged(this)" /> Directory listings</label>
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="q-num">24.</span> Are there specific keywords you want to rank for?</label>
+        <textarea id="mkt-keywords" rows="2" placeholder="e.g. 'plumber Cape Town', 'affordable accountants Johannesburg', 'custom cakes Durban'"></textarea>
+      </div>
+      <div class="field">
+        <label><span class="q-num">25.</span> Will you be running paid advertising?</label>
+        <div class="radio-group inline">
+          <label class="opt-label"><input type="radio" name="mkt-ads" value="Yes — Google Ads" onchange="optChanged(this)" /> Yes — Google Ads</label>
+          <label class="opt-label"><input type="radio" name="mkt-ads" value="Yes — Social media ads" onchange="optChanged(this)" /> Yes — Social ads</label>
+          <label class="opt-label"><input type="radio" name="mkt-ads" value="Both" onchange="optChanged(this)" /> Both</label>
+          <label class="opt-label"><input type="radio" name="mkt-ads" value="No" onchange="optChanged(this)" /> No</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline & Budget -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#F3F0FE;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <h2>Timeline & budget</h2>
+      <span class="section-badge">Section 7</span>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label><span class="q-num">27.</span> Is there a launch deadline?</label>
+        <div class="radio-group inline">
+          <label class="opt-label"><input type="radio" name="tl-deadline" value="Yes — specific date" onchange="optChanged(this)" /> Yes — specific date</label>
+          <label class="opt-label"><input type="radio" name="tl-deadline" value="Flexible but ASAP" onchange="optChanged(this)" /> Flexible but ASAP</label>
+          <label class="opt-label"><input type="radio" name="tl-deadline" value="No rush" onchange="optChanged(this)" /> No rush</label>
+        </div>
+      </div>
+      <div class="field" id="deadline-date-field" style="display:none;">
+        <label>Target launch date</label>
+        <input type="text" id="tl-date" placeholder="e.g. 1 September 2026" />
+      </div>
+      <div class="field">
+        <label><span class="q-num">28.</span> What is your approximate budget range? <span class="req">*</span></label>
+        <select id="tl-budget" onchange="updateProgress()">
+          <option value="">Select a range…</option>
+          <option>Under R15,000</option>
+          <option>R15,000 – R30,000</option>
+          <option>R30,000 – R60,000</option>
+          <option>R60,000 – R100,000</option>
+          <option>R100,000+</option>
+          <option>To be discussed</option>
+        </select>
+      </div>
+      <div class="field">
+        <label><span class="q-num">29.</span> Are you open to a phased approach?</label>
+        <div class="radio-group inline">
+          <label class="opt-label"><input type="radio" name="tl-phased" value="Yes — let's discuss phases" onchange="optChanged(this)" /> Yes — let's discuss</label>
+          <label class="opt-label"><input type="radio" name="tl-phased" value="I want everything at once" onchange="optChanged(this)" /> I want everything at once</label>
+          <label class="opt-label"><input type="radio" name="tl-phased" value="Not sure yet" onchange="optChanged(this)" /> Not sure yet</label>
+        </div>
+      </div>
+      <div class="field">
+        <label><span class="q-num">30.</span> Who is the main decision-maker for this project?</label>
+        <input type="text" id="tl-contact" placeholder="e.g. Jane Smith, CEO — jane@acme.com" />
+      </div>
+      <div class="field">
+        <label>Anything else you'd like us to know?</label>
+        <textarea id="extra" rows="3" placeholder="Any other details, inspirations, concerns, or questions…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-section">
+    <h3>Ready to send?</h3>
+    <p>Both you and our team will receive a copy of your completed answers — including a PDF summary — via email.</p>
+    <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">
+      <span id="btnText">Send my answers</span>
+      <div class="spinner" id="btnSpinner"></div>
+      <svg id="btnIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Thank you -->
+<div class="thankyou" id="thankYou">
+  <div class="check-circle">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1A7A4A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h2>All sent — thank you!</h2>
+  <p>We've emailed a summary and PDF to <strong id="thankEmail"></strong> and to our team. We'll be in touch shortly.</p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────
+let cfg = {
+  pubkey: localStorage.getItem('ejs_pubkey') || '',
+  service: localStorage.getItem('ejs_service') || '',
+  template: localStorage.getItem('ejs_template') || '',
+  myEmail: localStorage.getItem('ejs_myemail') || ''
+};
+
+function openConfig() {
+  document.getElementById('cfg-pubkey').value = cfg.pubkey;
+  document.getElementById('cfg-service').value = cfg.service;
+  document.getElementById('cfg-template').value = cfg.template;
+  document.getElementById('cfg-myemail').value = cfg.myEmail;
+  document.getElementById('configModal').classList.add('open');
+}
+function closeConfig() {
+  document.getElementById('configModal').classList.remove('open');
+}
+function saveConfig() {
+  cfg.pubkey   = document.getElementById('cfg-pubkey').value.trim();
+  cfg.service  = document.getElementById('cfg-service').value.trim();
+  cfg.template = document.getElementById('cfg-template').value.trim();
+  cfg.myEmail  = document.getElementById('cfg-myemail').value.trim();
+  localStorage.setItem('ejs_pubkey',   cfg.pubkey);
+  localStorage.setItem('ejs_service',  cfg.service);
+  localStorage.setItem('ejs_template', cfg.template);
+  localStorage.setItem('ejs_myemail',  cfg.myEmail);
+  closeConfig();
+  updateBanner();
+  showToast('Configuration saved', 'success');
+}
+function updateBanner() {
+  const ready = cfg.pubkey && cfg.service && cfg.template && cfg.myEmail;
+  document.getElementById('configBanner').style.display = ready ? 'none' : 'flex';
+}
+updateBanner();
+
+// ── Business overview toggle ─────────────────────────
+let boMode = 'upload';
+function setBoMode(mode) {
+  boMode = mode;
+  document.getElementById('tab-upload').classList.toggle('active', mode === 'upload');
+  document.getElementById('tab-manual').classList.toggle('active', mode === 'manual');
+  document.getElementById('bo-upload').classList.toggle('hidden', mode !== 'upload');
+  document.getElementById('bo-manual').classList.toggle('hidden', mode !== 'manual');
+  updateProgress();
+}
+
+// ── File upload ──────────────────────────────────────
+let uploadedFile = null;
+function handleFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  uploadedFile = file;
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('filePill').classList.remove('hidden');
+  document.getElementById('uploadZone').style.opacity = '0.5';
+  updateProgress();
+}
+function removeFile() {
+  uploadedFile = null;
+  document.getElementById('bo-file').value = '';
+  document.getElementById('filePill').classList.add('hidden');
+  document.getElementById('uploadZone').style.opacity = '1';
+  updateProgress();
+}
+
+// Drag and drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    uploadedFile = file;
+    document.getElementById('bo-file').files = e.dataTransfer.files;
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('filePill').classList.remove('hidden');
+    zone.style.opacity = '0.5';
+    updateProgress();
+  }
+});
+
+// ── Deadline toggle ──────────────────────────────────
+document.querySelectorAll('input[name="tl-deadline"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('deadline-date-field').style.display =
+      r.value === 'Yes — specific date' && r.checked ? 'block' : 'none';
+  });
+});
+
+// ── Opt changed (radio/checkbox highlight) ───────────
+function optChanged(input) {
+  const name = input.name;
+  if (input.type === 'radio') {
+    document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+      r.closest('.opt-label').classList.toggle('selected', r.checked);
+    });
+  } else {
+    input.closest('.opt-label').classList.toggle('selected', input.checked);
+  }
+  updateProgress();
+}
+
+// ── Progress ─────────────────────────────────────────
+const required = ['f-name', 'f-company', 'f-email', 'g-success', 'tl-budget'];
+const requiredRadios = ['g-purpose'];
+
+function updateProgress() {
+  let done = 0;
+  const total = required.length + requiredRadios.length + 1 + 1; // +bo +budget
+
+  required.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value.trim()) done++;
+  });
+  requiredRadios.forEach(name => {
+    if (document.querySelector(`input[name="${name}"]:checked`)) done++;
+  });
+  // Business overview
+  if (boMode === 'upload' && uploadedFile) done++;
+  else if (boMode === 'manual' && document.getElementById('bo-1').value.trim()) done++;
+  // Budget
+  if (document.getElementById('tl-budget').value) done++;
+
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = pct + '%';
+}
+
+// ── Collect all answers ──────────────────────────────
+function collectAnswers() {
+  const get = id => (document.getElementById(id) || {}).value || '';
+  const radio = name => { const r = document.querySelector(`input[name="${name}"]:checked`); return r ? r.value : '—'; };
+  const checks = name => Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(c => c.value).join(', ') || '—';
+
+  return {
+    name:    get('f-name'),
+    company: get('f-company'),
+    email:   get('f-email'),
+    phone:   get('f-phone') || '—',
+    businessMode: boMode,
+    uploadedFile: uploadedFile ? uploadedFile.name : null,
+    bo1: get('bo-1'), bo2: get('bo-2'), bo3: get('bo-3'),
+    boBrand: radio('bo-brand'), bo5: get('bo-5'),
+    gPurpose: radio('g-purpose'), gSuccess: get('g-success'),
+    gCta: get('g-cta') || '—', gSecondary: get('g-secondary') || '—',
+    aIdeal: get('a-ideal') || '—', aMulti: radio('a-multi'), aDevice: radio('a-device'),
+    aObjections: get('a-objections') || '—',
+    scPages: checks('pages'), scPagesOther: get('sc-pages-other') || '—',
+    scContent: radio('sc-content'), scFunc: checks('func'),
+    scIntegrations: get('sc-integrations') || '—',
+    tPlatform: radio('t-platform'), tDomain: radio('t-domain'), tManage: radio('t-manage'),
+    mktFind: checks('mkt-find'), mktKeywords: get('mkt-keywords') || '—', mktAds: radio('mkt-ads'),
+    tlDeadline: radio('tl-deadline'), tlDate: get('tl-date') || '—',
+    tlBudget: get('tl-budget') || '—', tlPhased: radio('tl-phased'),
+    tlContact: get('tl-contact') || '—', extra: get('extra') || '—',
+  };
+}
+
+// ── Build PDF ────────────────────────────────────────
+function buildPDF(a) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const W = 210, margin = 18, lineH = 6.5, colW = W - margin * 2;
+  let y = 20;
+
+  const accent = [45, 91, 227];
+
+  function checkPage(needed = 14) {
+    if (y + needed > 280) { doc.addPage(); y = 20; }
+  }
+
+  // Header bar
+  doc.setFillColor(...accent);
+  doc.rect(0, 0, W, 14, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+  doc.text('WEBSITE DISCOVERY QUESTIONNAIRE', margin, 9);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.text(new Date().toLocaleDateString('en-ZA', { day:'numeric', month:'long', year:'numeric' }), W - margin, 9, { align: 'right' });
+
+  y = 24;
+  doc.setTextColor(26, 26, 26);
+  doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+  doc.text(a.company, margin, y); y += 8;
+  doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(107, 107, 107);
+  doc.text(`Prepared by: ${a.name}   •   ${a.email}   •   ${a.phone}`, margin, y); y += 10;
+
+  doc.setDrawColor(228, 228, 225);
+  doc.setLineWidth(0.3);
+  doc.line(margin, y, W - margin, y); y += 8;
+
+  function sectionHead(title) {
+    checkPage(18);
+    doc.setFillColor(238, 242, 255);
+    doc.roundedRect(margin, y, colW, 8, 1.5, 1.5, 'F');
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...accent);
+    doc.text(title.toUpperCase(), margin + 4, y + 5.5);
+    y += 13;
+    doc.setTextColor(26, 26, 26);
+  }
+
+  function row(label, value) {
+    checkPage(14);
+    doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(26, 26, 26);
+    const lw = 58;
+    doc.text(label, margin, y);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(50, 50, 50);
+    const lines = doc.splitTextToSize(value || '—', colW - lw - 4);
+    doc.text(lines, margin + lw, y);
+    y += Math.max(lines.length * lineH, lineH) + 1.5;
+  }
+
+  sectionHead('1. Business overview');
+  if (a.businessMode === 'upload') {
+    row('Business profile', a.uploadedFile ? `Document uploaded: ${a.uploadedFile}` : 'Not uploaded');
+  } else {
+    row('About the business', a.bo1 || '—');
+    row('Stage of business', a.bo2 || '—');
+    row('Competitors & their sites', a.bo3 || '—');
+    row('Brand identity', a.boBrand);
+    row('Admired websites', a.bo5 || '—');
+  }
+  y += 4;
+
+  sectionHead('2. Goals & purpose');
+  row('Primary purpose', a.gPurpose);
+  row('Definition of success', a.gSuccess || '—');
+  row('Primary call-to-action', a.gCta);
+  row('Secondary goals', a.gSecondary);
+  y += 4;
+
+  sectionHead('3. Target audience');
+  row('Ideal customer', a.aIdeal);
+  row('Multiple audiences?', a.aMulti);
+  row('Primary device used', a.aDevice);
+  row('Objections / hesitations', a.aObjections);
+  y += 4;
+
+  sectionHead('4. Scope & content');
+  row('Pages required', a.scPages);
+  row('Other pages', a.scPagesOther);
+  row('Existing content', a.scContent);
+  row('Special functionality', a.scFunc);
+  row('Integrations needed', a.scIntegrations);
+  y += 4;
+
+  sectionHead('5. Technical & platform');
+  row('Platform preference', a.tPlatform);
+  row('Domain & hosting', a.tDomain);
+  row('Post-launch management', a.tManage);
+  y += 4;
+
+  sectionHead('6. Marketing & SEO');
+  row('How clients find you', a.mktFind);
+  row('Target keywords', a.mktKeywords);
+  row('Paid advertising', a.mktAds);
+  y += 4;
+
+  sectionHead('7. Timeline & budget');
+  row('Launch deadline', a.tlDeadline);
+  if (a.tlDate !== '—') row('Target launch date', a.tlDate);
+  row('Budget range', a.tlBudget);
+  row('Phased approach', a.tlPhased);
+  row('Decision-maker', a.tlContact);
+  if (a.extra !== '—') { y += 4; sectionHead('Additional notes'); row('Notes', a.extra); }
+
+  // Footer on all pages
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFillColor(248, 248, 247);
+    doc.rect(0, 287, W, 10, 'F');
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(158, 158, 155);
+    doc.text('Confidential — Website Discovery Questionnaire', margin, 293);
+    doc.text(`Page ${i} of ${pageCount}`, W - margin, 293, { align: 'right' });
+  }
+
+  return doc;
+}
+
+// ── Validate ─────────────────────────────────────────
+function validate(a) {
+  if (!a.name) return 'Please enter your full name.';
+  if (!a.company) return 'Please enter your company name.';
+  if (!a.email || !/\S+@\S+\.\S+/.test(a.email)) return 'Please enter a valid email address.';
+  if (a.businessMode === 'upload' && !a.uploadedFile) return 'Please upload your business profile, or switch to "Answer manually".';
+  if (a.businessMode === 'manual' && !a.bo1) return 'Please describe your business in Section 1.';
+  if (!a.gPurpose || a.gPurpose === '—') return 'Please select the primary purpose of your website in Section 2.';
+  if (!a.gSuccess) return 'Please describe what success looks like in Section 2.';
+  if (!a.tlBudget) return 'Please select a budget range in Section 7.';
+  return null;
+}
+
+// ── Submit ────────────────────────────────────────────
+async function handleSubmit() {
+  const a = collectAnswers();
+  const err = validate(a);
+  if (err) { showToast(err, 'error'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  document.getElementById('btnText').textContent = 'Sending…';
+  document.getElementById('btnSpinner').style.display = 'block';
+  document.getElementById('btnIcon').style.display = 'none';
+
+  // Build PDF
+  const doc = buildPDF(a);
+  const pdfBase64 = doc.output('datauristring').split(',')[1];
+
+  // Build plain text summary
+  const summary = buildSummaryText(a);
+
+  // Send via EmailJS
+  if (!cfg.pubkey || !cfg.service || !cfg.template) {
+    // Dev fallback — show PDF download if EmailJS not configured
+    doc.save(`${a.company.replace(/\s+/g,'-')}-discovery.pdf`);
+    showToast('EmailJS not configured — PDF downloaded instead.', 'error');
+    btn.disabled = false;
+    document.getElementById('btnText').textContent = 'Send my answers';
+    document.getElementById('btnSpinner').style.display = 'none';
+    document.getElementById('btnIcon').style.display = 'block';
+    return;
+  }
+
+  try {
+    emailjs.init(cfg.pubkey);
+    // Send to client
+    await emailjs.send(cfg.service, cfg.template, {
+      to_email: a.email,
+      to_name: a.name,
+      company: a.company,
+      summary: summary,
+      pdf_base64: pdfBase64,
+      reply_to: cfg.myEmail,
+    });
+    // Send copy to agency
+    await emailjs.send(cfg.service, cfg.template, {
+      to_email: cfg.myEmail,
+      to_name: 'Our team',
+      company: a.company,
+      summary: `Copy from ${a.name} (${a.email}):\n\n` + summary,
+      pdf_base64: pdfBase64,
+      reply_to: a.email,
+    });
+
+    document.getElementById('thankEmail').textContent = a.email;
+    document.getElementById('formArea').style.display = 'none';
+    document.getElementById('thankYou').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (e) {
+    console.error(e);
+    showToast('Email failed to send. Check your EmailJS config and try again.', 'error');
+    btn.disabled = false;
+    document.getElementById('btnText').textContent = 'Send my answers';
+    document.getElementById('btnSpinner').style.display = 'none';
+    document.getElementById('btnIcon').style.display = 'block';
+  }
+}
+
+function buildSummaryText(a) {
+  const lines = [
+    `WEBSITE DISCOVERY — ${a.company}`,
+    `Submitted by: ${a.name} | ${a.email} | ${a.phone}`,
+    '',
+    '── BUSINESS OVERVIEW ──',
+    a.businessMode === 'upload'
+      ? `Business profile uploaded: ${a.uploadedFile || 'yes'}`
+      : [`About: ${a.bo1}`, `Stage: ${a.bo2}`, `Competitors: ${a.bo3}`, `Brand: ${a.boBrand}`, `Admired sites: ${a.bo5}`].join('\n'),
+    '',
+    '── GOALS & PURPOSE ──',
+    `Primary purpose: ${a.gPurpose}`,
+    `Success means: ${a.gSuccess}`,
+    `Main CTA: ${a.gCta}`,
+    '',
+    '── AUDIENCE ──',
+    `Ideal customer: ${a.aIdeal}`,
+    `Multiple audiences: ${a.aMulti}`,
+    `Primary device: ${a.aDevice}`,
+    `Objections: ${a.aObjections}`,
+    '',
+    '── SCOPE ──',
+    `Pages: ${a.scPages}`,
+    `Content ready: ${a.scContent}`,
+    `Functionality: ${a.scFunc}`,
+    `Integrations: ${a.scIntegrations}`,
+    '',
+    '── TECHNICAL ──',
+    `Platform: ${a.tPlatform}`,
+    `Domain/hosting: ${a.tDomain}`,
+    `Post-launch management: ${a.tManage}`,
+    '',
+    '── MARKETING & SEO ──',
+    `How found: ${a.mktFind}`,
+    `Keywords: ${a.mktKeywords}`,
+    `Paid ads: ${a.mktAds}`,
+    '',
+    '── TIMELINE & BUDGET ──',
+    `Deadline: ${a.tlDeadline} ${a.tlDate !== '—' ? '— ' + a.tlDate : ''}`,
+    `Budget: ${a.tlBudget}`,
+    `Phased approach: ${a.tlPhased}`,
+    `Decision-maker: ${a.tlContact}`,
+    a.extra !== '—' ? `\nAdditional notes: ${a.extra}` : '',
+  ];
+  return lines.join('\n');
+}
+
+// ── Toast ─────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>
